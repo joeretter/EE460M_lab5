@@ -1,4 +1,4 @@
-module sorter (reset, clk, weight, grp1, grp2, grp3, grp4, grp5, grp6, currentGrp); 
+module sorter (reset, clk, weight, grp1, grp2, grp3, grp4, grp5, grp6, currentGrp); //Changed by Joe
 input reset, clk; 
 input wire [11:0] weight; 
 output reg [7:0] grp1, grp2, grp3, grp4, grp5, grp6; 

@@ -1,5 +1,5 @@
 module seven_seg_display( input clk,
- input [3:0] bcd0, bcd1, bcd2, bcd3,  //the 4 inputs for each display
+ input [4:0] bcd0, bcd1, bcd2, bcd3,  //the 4 inputs for each display
  output a, b, c, d, e, f, g, dp, //segments 
  output [3:0] an   // the 4 bit enable signal
  );
@@ -8,7 +8,7 @@ module seven_seg_display( input clk,
 localparam N = 17; //18 but changed to test simulation 
  
 reg [N-1:0]count; //the 18 bit counter which allows us to multiplex at 1000Hz
-reg [7:1]sseg; //the 7 bit register to hold the data to output
+reg [4:0]sseg; //the register to hold the data to output
 reg [3:0]an_temp; //register for the 4 bit enable
 reg [7:1] sseg_temp; // 7 bit register to hold the binary value of each input given
 
@@ -40,7 +40,6 @@ always @ (*)
      sseg = bcd1;
      an_temp = 4'b1101;
     end
-    
    2'b10:  //When the 2 MSB's are 10 enable the second display
     begin
      sseg = bcd2;
@@ -61,22 +60,23 @@ assign an = an_temp;
 always @ (*)
  begin
   case(sseg)
-   4'd0 : sseg_temp = 7'b1000000; //to display 0
-   4'd1 : sseg_temp = 7'b1111001; //to display 1
-   4'd2 : sseg_temp = 7'b0100100; //to display 2
-   4'd3 : sseg_temp = 7'b0110000; //to display 3
-   4'd4 : sseg_temp = 7'b0011001; //to display 4
-   4'd5 : sseg_temp = 7'b0010010; //to display 5
-   4'd6 : sseg_temp = 7'b0000010; //to display 6
-   4'd7 : sseg_temp = 7'b1111000; //to display 7
-   4'd8 : sseg_temp = 7'b0000000; //to display 8
-   4'd9 : sseg_temp = 7'b0010000; //to display 9
-   4'hA : sseg_temp = 7'b0001000; //to display A
-   4'hB : sseg_temp = 7'b0000011; //to display b
-   4'hC : sseg_temp = 7'b1000110; //to display C
-   4'hD : sseg_temp = 7'b0100001; //to display d
-   4'hE : sseg_temp = 7'b0000110; //to display E
-   4'hF : sseg_temp = 7'b0001110; //to display F
+   5'd0 : sseg_temp = 7'b1000000; //to display 0
+   5'd1 : sseg_temp = 7'b1111001; //to display 1
+   5'd2 : sseg_temp = 7'b0100100; //to display 2
+   5'd3 : sseg_temp = 7'b0110000; //to display 3
+   5'd4 : sseg_temp = 7'b0011001; //to display 4
+   5'd5 : sseg_temp = 7'b0010010; //to display 5
+   5'd6 : sseg_temp = 7'b0000010; //to display 6
+   5'd7 : sseg_temp = 7'b1111000; //to display 7
+   5'd8 : sseg_temp = 7'b0000000; //to display 8
+   5'd9 : sseg_temp = 7'b0010000; //to display 9
+   5'h0A : sseg_temp = 7'b0001000; //to display A
+   5'h0B : sseg_temp = 7'b0000011; //to display b
+   5'h0C : sseg_temp = 7'b1000110; //to display C
+   5'h0D : sseg_temp = 7'b0100001; //to display d
+   5'h0E : sseg_temp = 7'b0000110; //to display E
+   5'h0F : sseg_temp = 7'b0001110; //to display F
+   5'h1F : sseg_temp = 7'b1111111; //none
    default : sseg_temp = 7'b1111111; //none
   endcase
  end

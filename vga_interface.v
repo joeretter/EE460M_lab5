@@ -1,24 +1,27 @@
-module vga_top(clk,color, vgaRed, vgaGreen, vgaBlue, Hsync, Vsync, is_vis); 
+module vga_top(clk,color, vgaRed, vgaGreen, vgaBlue, Hsync, Vsync, is_vis, hcount, vcount); 
 input clk; //pass in 25MHz clk "pixel clk"
 input [7:0] color; //pixel color (1-7)
 output [3:0] vgaRed, vgaGreen, vgaBlue; 
 output Hsync, Vsync; 
 output [3:0] is_vis; 
+output [10:0] hcount,vcount; 
+
 
 clk_div clk_div_inst(clk, 0, clk_25); 
-vga_interface vga_interface_inst(clk_25, color, vgaRed, vgaGreen, vgaBlue, Hsync,Vsync, is_vis);
+vga_interface vga_interface_inst(clk_25, color, vgaRed, vgaGreen, vgaBlue, Hsync,Vsync, is_vis,hcount, vcount);
 
 endmodule 
 //vsync 494 493 dwon 495 up 
 //make smaller nubmers 
 ////////////////////////////////////////////////////////////////////////////
 
-module vga_interface(clk, color, R, G, B, hsync,vsync,is_vis );
+module vga_interface(clk, color, R, G, B, hsync,vsync,is_vis, hcount, vcount);
 input clk; //pass in 25MHz clk "pixel clk"
 input [7:0] color; //pixel color (1-7)
 output [3:0] R, G, B; 
 output hsync, vsync; 
 output [3:0] is_vis; 
+output [10:0] hcount,vcount; 
 
 reg [10:0] hcount; 
 reg [10:0] vcount; 

@@ -104,7 +104,7 @@ end
 end
 
 */
-/*
+
 // update snake location at 5 FPS
 always @(posedge clk_5Hz)
 begin 
@@ -140,7 +140,6 @@ begin
 		else collision <= 0;
 	end
 end 
-*/
 
 
 always @(posedge clk_25MHz)

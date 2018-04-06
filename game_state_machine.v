@@ -103,8 +103,8 @@ end
 	
 end
 
-
-
+*/
+/*
 // update snake location at 5 FPS
 always @(posedge clk_5Hz)
 begin 
@@ -141,6 +141,8 @@ begin
 	end
 end 
 */
+
+
 always @(posedge clk_25MHz)
 begin
 	if(((hcount > 0 ) && (hcount < 640) && (vcount > 0) && (vcount < 10)) || ((hcount > 0 ) && (hcount<640) && (vcount >470) && (vcount < 480)) || ((hcount > 0 ) && (hcount<10) && (vcount >0) && (vcount < 480)) || ((hcount > 630 ) && (hcount<640) && (vcount >0) && (vcount < 480)))

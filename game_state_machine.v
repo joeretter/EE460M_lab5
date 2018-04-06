@@ -6,9 +6,10 @@ output reg [7:0] color;
 
 reg snake;
 reg [1:0] game_state; // 00 = game hasn't started yet, 01 = game is pause, 10 = normal game play, 11 = game over
+reg [1:0] nxt_game_state; 
 reg reset_snake; //resets the snake back to its original position
 reg ack_reset; //acknowledges that the snake has been reset back to its original position
-reg [1:0] direction; // 00 = up, 01 = right, 10 = down, 11 = left
+reg [1:0] direction, direction_nxt; // 00 = up, 01 = right, 10 = down, 11 = left
 reg [10:0] SnakeX [0:3], SnakeY[0: 3]; //stores the X and Y coordinates of each of the 4 blocks that make up the snake 
 reg collision; 
 
@@ -17,8 +18,8 @@ parameter [1:0] game_paused = 2'b01;
 parameter [1:0] normal_game_play = 2'b10;
 parameter [1:0] game_over = 2'b11;
 
-parameter [1:0] up = 2'b00;
-parameter [1:0] right = 2'b01;
+parameter [1:0] up = 2'b01;
+parameter [1:0] right = 2'b00;
 parameter [1:0] down = 2'b10;
 parameter [1:0] left = 2'b11;
 
@@ -34,6 +35,7 @@ parameter [7:0] left_arrow_key = 8'h6B;
 parameter [7:0] white = 8'b10000000;
 parameter [7:0] blue = 8'b00000010;
 parameter [7:0] red = 8'b00010000;
+parameter [7:0] black = 8'b00100000;
 
 initial 
 begin 
@@ -50,60 +52,75 @@ SnakeY[3] <= 20;
 
 //initial direction
 direction <= right; 
+direction_nxt <= right; 
 reset_snake <= 0;
 game_state <= game_not_started;
+nxt_game_state <= game_not_started; 
+ack_reset <=0; 
+collision <= 0; 
 
 end 
 
-/*
-always @(new_key_strobe, collision, ack_reset) //whenever a key is pressed or the snake hits something, update the game state and snake direction
+
+
+always @(new_key_strobe, collision, ack_reset) //whenever a key is pressed or the snake hits something, update the game state and snake direction //, collision, ack_reset
 begin
-if(new_key_strobe) begin // I think this will create a latch, but it does what we want it to do
+
+if(new_key_strobe==1) begin 
 	case(game_state)
-		game_not_started: begin
-			if(keycode == s_key) game_state = normal_game_play;
-			else game_state = game_not_started;
+		 game_not_started: begin
+				if(keycode == s_key) nxt_game_state = normal_game_play;
+				else nxt_game_state = game_not_started;
 		end
 		
 		normal_game_play: begin
-			if(keycode == esc_key) game_state = game_not_started;
+		
+			if(keycode == esc_key) nxt_game_state = game_not_started;
 			else if(keycode == s_key) reset_snake = 1; 
-			else if(keycode == p_key) game_state = game_paused;
-			else if(keycode == r_key) game_state = normal_game_play; 
-			else if(keycode == up_arrow_key) begin game_state = normal_game_play; direction = up; end
-			else if(keycode == right_arrow_key) begin game_state = normal_game_play; direction = right; end
-			else if(keycode == down_arrow_key) begin game_state = normal_game_play; direction = down; end
-			else if(keycode == left_arrow_key) begin game_state = normal_game_play; direction = left; end
-			else game_state = normal_game_play;
+			else if(keycode == p_key) nxt_game_state = game_paused;
+			else if(keycode == r_key) nxt_game_state = normal_game_play; 
+		
+		    if(keycode == up_arrow_key) begin nxt_game_state = normal_game_play;  direction_nxt = up; end
+			else if(keycode == right_arrow_key) begin nxt_game_state = normal_game_play; direction_nxt = right; end
+			else if(keycode == down_arrow_key) begin nxt_game_state = normal_game_play;  direction_nxt = down; end
+			else if(keycode == left_arrow_key) begin nxt_game_state = normal_game_play; direction_nxt = left; end
+			else begin nxt_game_state = normal_game_play; direction_nxt = direction; end
+		
 		end
 		
 		game_paused: begin
-			if(keycode == esc_key) game_state = game_not_started;
-			else if(keycode == s_key) begin game_state = normal_game_play; reset_snake = 1; end
-			else if(keycode == p_key) game_state = game_paused;
-			else if(keycode == r_key) game_state = normal_game_play; 
-			else game_state = game_paused;
+		
+			if(keycode == esc_key) nxt_game_state = game_not_started;
+			else if(keycode == s_key) begin nxt_game_state = normal_game_play; reset_snake = 1; end
+			else if(keycode == p_key) nxt_game_state = game_paused;
+			else if(keycode == r_key) nxt_game_state = normal_game_play; 
+			else nxt_game_state = game_paused;
+		 
 		end
 			
 		game_over: begin
-			if(keycode == esc_key) game_state = game_not_started;
-			else if(keycode == s_key) begin game_state = normal_game_play; reset_snake = 1; end
-			else game_state = game_over;
+		
+			if(keycode == esc_key) nxt_game_state = game_not_started;
+			else if(keycode == s_key) begin nxt_game_state = normal_game_play; reset_snake = 1; end
+			else nxt_game_state = game_over;
+		
 		end
 	endcase
 end
 
 if(collision) begin
-	game_state = game_over;
+	nxt_game_state = game_over;
 end
 
 if(ack_reset) begin
 	reset_snake = 0;
 end
+
 	
 end
 
-*/
+
+
 
 // update snake location at 5 FPS
 always @(posedge clk_5Hz)
@@ -121,12 +138,14 @@ begin
 		ack_reset <= 1;
 	end
 	else begin
+	    if(game_state == normal_game_play)
+		begin 
 		ack_reset <= 0;
 		case(direction) //move the snake head based on the direction 
-		right: SnakeX[0] <= SnakeX[0] + 10;  
 		left: SnakeX[0] <= SnakeX[0] - 10;  
 		down: SnakeY[0] <= SnakeY[0] + 10;  
 		up: SnakeY[0] <= SnakeY[0] - 10; 
+		right: SnakeX[0] <= SnakeX[0] + 10;   
 		endcase 
 		//move the rest of the snake
 		SnakeX[1] <= SnakeX[0];
@@ -138,19 +157,30 @@ begin
 		//check for collision
 		if((SnakeX[0] == 11'd0) || (SnakeX[0] == 11'd630) || (SnakeY[0] == 11'd0) || (SnakeY[0] == 11'd470)) collision <= 1;
 		else collision <= 0;
+		end 
 	end
 end 
 
 
 always @(posedge clk_25MHz)
+begin 
+game_state <= nxt_game_state; 
+direction <= direction_nxt; 
+
+if(game_state == game_not_started) begin  color <= black; end 
+//else if(game_state == game_over)begin color <= white; end 
+
+else if (game_state ==  normal_game_play)
 begin
-	if(((hcount > 0 ) && (hcount < 640) && (vcount > 0) && (vcount < 10)) || ((hcount > 0 ) && (hcount<640) && (vcount >470) && (vcount < 480)) || ((hcount > 0 ) && (hcount<10) && (vcount >0) && (vcount < 480)) || ((hcount > 630 ) && (hcount<640) && (vcount >0) && (vcount < 480)))
-		color <= red; //if the scanner is at the coordinates of a boundary, make that pixel red
+ if(((hcount > 0 ) && (hcount < 640) && (vcount > 0) && (vcount < 10)) || ((hcount > 0 ) && (hcount<640) && (vcount >470) && (vcount < 480)) || ((hcount > 0 ) && (hcount<10) && (vcount >0) && (vcount < 480)) || ((hcount > 630 ) && (hcount<640) && (vcount >0) && (vcount < 480)))
+		begin color <= red; end //if the scanner is at the coordinates of a boundary, make that pixel red
 	else if( ((hcount >= SnakeX[0]) && (hcount < (SnakeX[0] + 10)) && (vcount >= SnakeY[0]) && (vcount < (SnakeY[0] +10) )) || ((hcount >= SnakeX[1]) && (hcount < (SnakeX[1] + 10)) && (vcount >= SnakeY[1]) && (vcount < (SnakeY[1] +10) ))|| ((hcount >= SnakeX[2]) && (hcount < (SnakeX[2] + 10)) && (vcount >= SnakeY[2]) && (vcount < (SnakeY[2] +10) )) || ((hcount >= SnakeX[3]) && (hcount < (SnakeX[3] + 10)) && (vcount >= SnakeY[3]) && (vcount < (SnakeY[3] +10) )) )
-		color <= blue; //if the scanner is at the coordinates of any of the snake blocks, make that pixel blue
+		begin color <= blue; end  //if the scanner is at the coordinates of any of the snake blocks, make that pixel blue
 	else 
-		color <= white; //otherwise make the pixel white
+		begin color <= white; end  //otherwise make the pixel white
+
 end
+end 
 
 endmodule 
 

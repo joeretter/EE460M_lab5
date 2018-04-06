@@ -5,26 +5,23 @@ output Hsync, Vsync;
 
 
 //wires for unused outputs 
-wire strobe_out, a, b, c, d, e, f, g, dp;
-wire [3:0] an;
 wire [3:0] is_vis; 
 
 //wires for connections needed 
 wire clk_25MHz, clk_5Hz; 
 wire [10:0] hcount,vcount; 
 wire [7:0] color; 
-
-//TODO: need to add outputs 
 wire new_key_strobe; 
 wire [7:0] keycode; 
 
-//clk dividers TODO: inputs / outputs 
+//clk dividers 
 clk_div_5Hz clk_div_5(clk, 0, clk_5Hz);
 clk_div clk_div_inst(clk, 0, clk_25MHz); 
 
 
 //keyboard TODO: change to other file  
 //keyboard_display keyboard_display_inst(clk, ps2_clk, ps2_data, strobe_out, a, b, c, d, e, f, g, dp, an); 
+game_keyboard game_keyboard_inst(clk, ps2_clk, ps2_data, keycode, new_key_strobe);
 
 //game 
 game_state_machine game_state_machine_inst(clk_25MHz, clk_5Hz, keycode, new_key_strobe, hcount, vcount, color);

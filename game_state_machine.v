@@ -1,5 +1,5 @@
 module game_state_machine(clk_25MHz, clk_5Hz, keycode, new_key_strobe, hcount, vcount, color); 
-input clk_25Mhz, clk_5Hz, new_key_strobe, hcount, vcount; //the clk_25MHz should be the same one used for VGA output
+input clk_25MHz, clk_5Hz, new_key_strobe, hcount, vcount; //the clk_25MHz should be the same one used for VGA output
 input [7:0] keycode;
 output color; 
 
@@ -10,30 +10,30 @@ reg ack_reset; //acknowledges that the snake has been reset back to its original
 reg [1:0] direction; // 00 = up, 01 = right, 10 = down, 11 = left
 reg [10:0] SnakeX [0:3], SnakeY[0: 3]; //stores the X and Y coordinates of each of the 4 blocks that make up the snake 
 reg [1:0] color; // 00 = white, 01 = blue, 10 = red
+reg collision; 
 
-`define game_not_started 2'b00
-`define game_paused 2'b01
-`define normal_game_play 2'b10
-`define game_over 2'b11
+parameter [1:0] game_not_started = 2'b00;
+parameter [1:0] game_paused = 2'b01;
+parameter [1:0] normal_game_play = 2'b10;
+parameter [1:0] game_over = 2'b11;
 
-`define up 2'b00
-`define right 2'b01
-`define down 2'b10
-`define left 2'b11
+parameter [1:0] up = 2'b00;
+parameter [1:0] right = 2'b01;
+parameter [1:0] down = 2'b10;
+parameter [1:0] left = 2'b11;
 
-`define esc_key 8'h76
-`define s_key 8'h1B
-`define p_key 8'h4D
-`define r_key 8'h2D
-`define up_arrow_key 8'h75
-`define right_arrow_key 8'h74
-`define down_arrow_key 8'h72
-`define left_arrow_key 8'h6B
+parameter [7:0] esc_key = 8'h76;
+parameter [7:0] s_key = 8'h1B;
+parameter [7:0] p_key = 8'h4D;
+parameter [7:0] r_key = 8'h2D;
+parameter [7:0] up_arrow_key = 8'h75;
+parameter [7:0] right_arrow_key = 8'h74;
+parameter [7:0] down_arrow_key = 8'h72;
+parameter [7:0] left_arrow_key = 8'h6B;
 
-`define white 2'b00
-`define blue 2'b01
-`define red 2'b10
-
+parameter [1:0] white = 2'b00;
+parameter [1:0] blue = 2'b01;
+parameter [1:0] red = 2'b10;
 
 initial 
 begin 
@@ -141,15 +141,11 @@ begin
 	end
 end 
 
-
-always @(posedge clk_25Mhz)
+always @(posedge clk_25MHz)
 begin
-	if((hcount > 0 ) && (hcount < 640) && (vcount > 0) && (vcount < 10)) || ((hcount > 0 ) && (hcount<640) && (vcount >470) && (vcount < 480)) || ((hcount > 0 ) && (hcount<10) && (vcount >0) && (vcount < 480)) || ((hcount > 630 ) && (hcount<640) && (vcount >0) && (vcount < 480)))
+	if(((hcount > 0 ) && (hcount < 640) && (vcount > 0) && (vcount < 10)) || ((hcount > 0 ) && (hcount<640) && (vcount >470) && (vcount < 480)) || ((hcount > 0 ) && (hcount<10) && (vcount >0) && (vcount < 480)) || ((hcount > 630 ) && (hcount<640) && (vcount >0) && (vcount < 480)))
 		color <= red; //if the scanner is at the coordinates of a boundary, make that pixel red
-	else if( ((hcount >= SnakeX[0]) && (hcount < (SnakeX[0] + 10)) && (vcount >= SnakeY[0]) && (vcount < (SnakeY[0] +10) )) 
-	             || ((hcount >= SnakeX[1]) && (hcount < (SnakeX[1] + 10)) && (vcount >= SnakeY[1]) && (vcount < (SnakeY[1] +10) ))
-				 || ((hcount >= SnakeX[2]) && (hcount < (SnakeX[2] + 10)) && (vcount >= SnakeY[2]) && (vcount < (SnakeY[2] +10) ))
-				 || ((hcount >= SnakeX[3]) && (hcount < (SnakeX[3] + 10)) && (vcount >= SnakeY[3]) && (vcount < (SnakeY[3] +10) )) )
+	else if( ((hcount >= SnakeX[0]) && (hcount < (SnakeX[0] + 10)) && (vcount >= SnakeY[0]) && (vcount < (SnakeY[0] +10) )) || ((hcount >= SnakeX[1]) && (hcount < (SnakeX[1] + 10)) && (vcount >= SnakeY[1]) && (vcount < (SnakeY[1] +10) ))|| ((hcount >= SnakeX[2]) && (hcount < (SnakeX[2] + 10)) && (vcount >= SnakeY[2]) && (vcount < (SnakeY[2] +10) )) || ((hcount >= SnakeX[3]) && (hcount < (SnakeX[3] + 10)) && (vcount >= SnakeY[3]) && (vcount < (SnakeY[3] +10) )) )
 		color <= blue; //if the scanner is at the coordinates of any of the snake blocks, make that pixel blue
 	else 
 		color <= white; //otherwise make the pixel white
@@ -160,36 +156,3 @@ endmodule
 
 
 
-
-//////////////////////////CLK DIV///////////////////////////////////////////////////////////////////////
-module clk_div (clk, reset, clk_out);
- 
-input clk;
-input reset;
-output clk_out;
- 
-reg [1:0] r_reg;
-wire [1:0] r_nxt;
-reg clk_track;
- 
-initial 
- begin
-  r_reg <= 3'b0;
-  clk_track <= 1'b0;
- end
-
-always @(posedge clk)
-begin
-   if (r_nxt == 2'b10)
- 	   begin
-	     r_reg <= 0;
-	     clk_track <= ~clk_track;
-	   end
- 
-  else 
-      r_reg <= r_nxt;
-end
- 
- assign r_nxt = r_reg+1;   	      
- assign clk_out = clk_track;
-endmodule

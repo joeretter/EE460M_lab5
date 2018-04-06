@@ -1,7 +1,8 @@
 module game_state_machine(clk_25MHz, clk_5Hz, keycode, new_key_strobe, hcount, vcount, color); 
-input clk_25MHz, clk_5Hz, new_key_strobe, hcount, vcount; //the clk_25MHz should be the same one used for VGA output
+input clk_25MHz, clk_5Hz, new_key_strobe; 
+input [10:0] hcount, vcount; //the clk_25MHz should be the same one used for VGA output
 input [7:0] keycode;
-output color; 
+output reg [7:0] color; 
 
 reg snake;
 reg [1:0] game_state; // 00 = game hasn't started yet, 01 = game is pause, 10 = normal game play, 11 = game over
@@ -9,7 +10,6 @@ reg reset_snake; //resets the snake back to its original position
 reg ack_reset; //acknowledges that the snake has been reset back to its original position
 reg [1:0] direction; // 00 = up, 01 = right, 10 = down, 11 = left
 reg [10:0] SnakeX [0:3], SnakeY[0: 3]; //stores the X and Y coordinates of each of the 4 blocks that make up the snake 
-reg [1:0] color; // 00 = white, 01 = blue, 10 = red
 reg collision; 
 
 parameter [1:0] game_not_started = 2'b00;
@@ -31,9 +31,9 @@ parameter [7:0] right_arrow_key = 8'h74;
 parameter [7:0] down_arrow_key = 8'h72;
 parameter [7:0] left_arrow_key = 8'h6B;
 
-parameter [1:0] white = 2'b00;
-parameter [1:0] blue = 2'b01;
-parameter [1:0] red = 2'b10;
+parameter [7:0] white = 8'b10000000;
+parameter [7:0] blue = 8'b00000010;
+parameter [7:0] red = 8'b00010000;
 
 initial 
 begin 
@@ -55,7 +55,7 @@ game_state <= game_not_started;
 
 end 
 
-
+/*
 always @(new_key_strobe, collision, ack_reset) //whenever a key is pressed or the snake hits something, update the game state and snake direction
 begin
 if(new_key_strobe) begin // I think this will create a latch, but it does what we want it to do
@@ -140,7 +140,7 @@ begin
 		else collision <= 0;
 	end
 end 
-
+*/
 always @(posedge clk_25MHz)
 begin
 	if(((hcount > 0 ) && (hcount < 640) && (vcount > 0) && (vcount < 10)) || ((hcount > 0 ) && (hcount<640) && (vcount >470) && (vcount < 480)) || ((hcount > 0 ) && (hcount<10) && (vcount >0) && (vcount < 480)) || ((hcount > 630 ) && (hcount<640) && (vcount >0) && (vcount < 480)))

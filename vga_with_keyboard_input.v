@@ -15,8 +15,8 @@ output Hsync, Vsync;
 output [3:0] is_vis; 
 output [10:0] hcount,vcount; 
 
-reg [4:0] scancode1, scancode0;
-reg strobe_light;
+wire [4:0] scancode1, scancode0;
+wire strobe_light;
 wire [7:0] color;
 
 assign color = {scancode1[3:0], scancode0[3:0]}; //color is the two hex digits corresponding to the key that was pressed
@@ -179,6 +179,50 @@ begin R = 0; G = 0; B = 0; is_vis<=0; end
 end 
 
 endmodule 
+
+
+module AND(a, b, out);
+input a, b;
+output out;
+
+assign out = a & b;
+
+endmodule
+
+module DFF(clk, d, q, q_bar);
+input clk, d;
+output q, q_bar;
+
+reg q, q_bar;
+
+always @(posedge clk)
+begin
+  q <= d;
+  q_bar <= ~d;
+end
+
+endmodule
+
+
+module debounce(clk, D, SYNCPRESS);
+input clk, D;
+output SYNCPRESS;
+
+DFF flop1(clk, D, flop1_Q, unused1);
+DFF flop2(clk, flop1_Q, SYNCPRESS, unused2);
+
+endmodule
+
+
+module single_pulse(clk, press, SP);
+input clk, press;
+output SP;
+
+debounce debouncer(clk, press, sync_press);
+DFF flip_flop(clk, sync_press, unused, q_bar);
+AND and_gate(sync_press, q_bar, SP);
+
+endmodule
 
 ////////////////////////////////////////////////////////////////////////////
 

@@ -170,7 +170,7 @@ direction <= direction_nxt;
 if(game_state == game_not_started) begin  color <= black; end 
 //else if(game_state == game_over)begin color <= white; end 
 
-else if ((game_state ==  normal_game_play)|| (game_state == game_over))
+else if ((game_state ==  normal_game_play)|| (game_state == game_over) || (game_state == game_paused))
 begin
  if(((hcount > 0 ) && (hcount < 640) && (vcount > 0) && (vcount < 10)) || ((hcount > 0 ) && (hcount<640) && (vcount >470) && (vcount < 480)) || ((hcount > 0 ) && (hcount<10) && (vcount >0) && (vcount < 480)) || ((hcount > 630 ) && (hcount<640) && (vcount >0) && (vcount < 480)))
 		begin color <= red; end //if the scanner is at the coordinates of a boundary, make that pixel red

@@ -76,11 +76,11 @@ if(new_key_strobe==1) begin
 		normal_game_play: begin
 		
 			if(keycode == esc_key) nxt_game_state = game_not_started;
-			else if(keycode == s_key) reset_snake = 1; 
+			else if(keycode == s_key) begin reset_snake = 1; direction_nxt = right; end 
 			else if(keycode == p_key) nxt_game_state = game_paused;
 			else if(keycode == r_key) nxt_game_state = normal_game_play; 
 		
-		    if(keycode == up_arrow_key) begin nxt_game_state = normal_game_play;  direction_nxt = up; end
+		    else if(keycode == up_arrow_key) begin nxt_game_state = normal_game_play;  direction_nxt = up; end
 			else if(keycode == right_arrow_key) begin nxt_game_state = normal_game_play; direction_nxt = right; end
 			else if(keycode == down_arrow_key) begin nxt_game_state = normal_game_play;  direction_nxt = down; end
 			else if(keycode == left_arrow_key) begin nxt_game_state = normal_game_play; direction_nxt = left; end
@@ -108,11 +108,11 @@ if(new_key_strobe==1) begin
 	endcase
 end
 
-if(collision) begin
+if(collision == 1) begin
 	nxt_game_state = game_over;
 end
 
-if(ack_reset) begin
+if(ack_reset == 1) begin
 	reset_snake = 0;
 end
 
@@ -170,7 +170,7 @@ direction <= direction_nxt;
 if(game_state == game_not_started) begin  color <= black; end 
 //else if(game_state == game_over)begin color <= white; end 
 
-else if (game_state ==  normal_game_play)
+else if ((game_state ==  normal_game_play)|| (game_state == game_over))
 begin
  if(((hcount > 0 ) && (hcount < 640) && (vcount > 0) && (vcount < 10)) || ((hcount > 0 ) && (hcount<640) && (vcount >470) && (vcount < 480)) || ((hcount > 0 ) && (hcount<10) && (vcount >0) && (vcount < 480)) || ((hcount > 630 ) && (hcount<640) && (vcount >0) && (vcount < 480)))
 		begin color <= red; end //if the scanner is at the coordinates of a boundary, make that pixel red

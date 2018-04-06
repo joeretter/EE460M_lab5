@@ -10,7 +10,7 @@ output [3:0] an;
 
 wire [10:0] hcount,vcount; 
 
-keyboard_display keyboard_display_inst(sys_clk, ps2_clk, ps2_data, strobe_out, a, b, c, d, e, f, g, dp, an); 
+keyboard_display keyboard_display_inst(clk, ps2_clk, ps2_data, strobe_out, a, b, c, d, e, f, g, dp, an); 
 clk_div clk_div_inst(clk, 0, clk_25); 
 vga_interface vga_interface_inst(clk_25, color, vgaRed, vgaGreen, vgaBlue, Hsync,Vsync, is_vis, hcount, vcount);
 

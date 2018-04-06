@@ -1,14 +1,15 @@
-module vga_top(clk,color, vgaRed, vgaGreen, vgaBlue, Hsync, Vsync, is_vis, hcount, vcount); 
+module vga_top(clk,color, vgaRed, vgaGreen, vgaBlue, Hsync, Vsync, is_vis); 
 input clk; //pass in 25MHz clk "pixel clk"
 input [7:0] color; //pixel color (1-7)
 output [3:0] vgaRed, vgaGreen, vgaBlue; 
 output Hsync, Vsync; 
 output [3:0] is_vis; 
-output [10:0] hcount,vcount; 
+
+wire [10:0] hcount,vcount; 
 
 
 clk_div clk_div_inst(clk, 0, clk_25); 
-vga_interface vga_interface_inst(clk_25, color, vgaRed, vgaGreen, vgaBlue, Hsync,Vsync, is_vis,hcount, vcount);
+vga_interface vga_interface_inst(clk_25, color, vgaRed, vgaGreen, vgaBlue, Hsync,Vsync, is_vis, hcount, vcount);
 
 endmodule 
 //vsync 494 493 dwon 495 up 
@@ -21,10 +22,10 @@ input [7:0] color; //pixel color (1-7)
 output [3:0] R, G, B; 
 output hsync, vsync; 
 output [3:0] is_vis; 
-output [10:0] hcount,vcount; 
+output reg [10:0] hcount, vcount; 
 
-reg [10:0] hcount; 
-reg [10:0] vcount; 
+//reg [10:0] hcount; 
+//reg [10:0] vcount; 
 reg hsync, vsync; 
 reg [3:0] R, G, B; 
 reg [3:0] is_vis; 
@@ -64,7 +65,7 @@ begin
   
   8'b00000010: begin R = 0; G = 0; B = 255; is_vis <= 1; end //blue 
   
-  8'b00000100: begin R = 165; G = 42; B = 42; is_vis <= 2; end //brown
+  8'b00000100: begin R = 139; G = 69; B = 19; is_vis <= 2; end //brown
   
   8'b00001000: begin R = 0; G = 139; B = 139; is_vis <= 3; end //cyan
   

@@ -8,12 +8,12 @@
 //down arrow key makes the screen yellow
 //left arrow key makes the screen white
 //These are all the keys used in the snake game
-module vga_with_keyboard_input(sys_clk, ps2_clk, ps2_data, vgaRed, vgaGreen, vgaBlue, Hsync, Vsync, is_vis, hcount, vcount);
+module vga_with_keyboard_input(sys_clk, ps2_clk, ps2_data, vgaRed, vgaGreen, vgaBlue, Hsync, Vsync, is_vis);
 input sys_clk, ps2_clk, ps2_data;
 output [3:0] vgaRed, vgaGreen, vgaBlue; 
 output Hsync, Vsync; 
 output [3:0] is_vis; 
-output [10:0] hcount,vcount; 
+wire [10:0] hcount,vcount; 
 
 wire [4:0] scancode1, scancode0;
 wire strobe_light;
@@ -22,7 +22,9 @@ wire [7:0] color;
 assign color = {scancode1[3:0], scancode0[3:0]}; //color is the two hex digits corresponding to the key that was pressed
 
 keyboard_input kbrd(sys_clk, ps2_clk, ps2_data, scancode1, scanconde0, strobe_light);
-vga_top vga_display(sys_clk, color, vgaRed, vgaGreen, vgaBlue, Hsync, Vsync, is_vis, hcount, vcount);
+//vga_top vga_display(sys_clk, color, vgaRed, vgaGreen, vgaBlue, Hsync, Vsync, is_vis, hcount, vcount);
+clk_div clk_div_inst(clk, 0, clk_25); 
+vga_interface vga_interface_inst(clk_25, color, vgaRed, vgaGreen, vgaBlue, Hsync,Vsync, is_vis,hcount, vcount);
 
 endmodule
 
@@ -91,19 +93,6 @@ endmodule
 
 
 //below is the original vga code EXCEPT the color case statment is modified to work with the keyboard
-module vga_top(clk,color, vgaRed, vgaGreen, vgaBlue, Hsync, Vsync, is_vis, hcount, vcount); 
-input clk; //pass in 25MHz clk "pixel clk"
-input [7:0] color; //pixel color (1-7)
-output [3:0] vgaRed, vgaGreen, vgaBlue; 
-output Hsync, Vsync; 
-output [3:0] is_vis; 
-output [10:0] hcount,vcount; 
-
-
-clk_div clk_div_inst(clk, 0, clk_25); 
-vga_interface vga_interface_inst(clk_25, color, vgaRed, vgaGreen, vgaBlue, Hsync,Vsync, is_vis,hcount, vcount);
-
-endmodule 
 //vsync 494 493 dwon 495 up 
 //make smaller nubmers 
 ////////////////////////////////////////////////////////////////////////////
@@ -114,10 +103,9 @@ input [7:0] color; //pixel color (1-7)
 output [3:0] R, G, B; 
 output hsync, vsync; 
 output [3:0] is_vis; 
-output [10:0] hcount,vcount; 
+output reg [10:0] hcount,vcount; 
 
-reg [10:0] hcount; 
-reg [10:0] vcount; 
+
 reg hsync, vsync; 
 reg [3:0] R, G, B; 
 reg [3:0] is_vis; 

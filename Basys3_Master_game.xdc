@@ -44,8 +44,8 @@ create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports clk
 
 
 ## LEDs
-#set_property PACKAGE_PIN U16 [get_ports strobe_out]
-#set_property IOSTANDARD LVCMOS33 [get_ports strobe_out]
+set_property PACKAGE_PIN U16 [get_ports new_key_strobe]
+set_property IOSTANDARD LVCMOS33 [get_ports new_key_strobe]
 ##set_property PACKAGE_PIN E19 [get_ports is_vis[1]]
 #set_property IOSTANDARD LVCMOS33 [get_ports is_vis[1]]
 #set_property PACKAGE_PIN U19 [get_ports is_vis[2]]

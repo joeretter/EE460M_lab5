@@ -1,7 +1,7 @@
-module game_top(clk, ps2_clk, ps2_data, vgaRed, vgaGreen, vgaBlue, Hsync, Vsync); 
+module game_top(clk, ps2_clk, ps2_data, vgaRed, vgaGreen, vgaBlue, Hsync, Vsync, new_key_strobe); 
 input clk, ps2_clk, ps2_data;
 output [3:0] vgaRed, vgaGreen, vgaBlue; 
-output Hsync, Vsync;
+output Hsync, Vsync, new_key_strobe;
 
 
 //wires for unused outputs 

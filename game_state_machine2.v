@@ -102,7 +102,7 @@ begin
                 else begin nxt_game_state = normal_game_play; direction_nxt = direction; end
             end
             else if(collision == 1'b1) nxt_game_state = game_over;
-            else begin nxt_game_state = normal_game_play; direction_nxt = right; end
+            else nxt_game_state = normal_game_play;
 		end
 		
 		game_paused: begin
@@ -137,6 +137,7 @@ always @(posedge clk_5Hz)
 begin 
     game_state <= nxt_game_state; 
     direction <= direction_nxt; 
+    
     if(game_state == start_position) begin
          SnakeX[0] <= 40; 
          SnakeX[1] <= 30; 
@@ -147,8 +148,7 @@ begin
          SnakeY[2] <= 20; 
          SnakeY[3] <= 20; 
     end
-	else begin
-	    if(game_state == normal_game_play) begin 
+	else if(game_state == normal_game_play) begin 
 		  case(direction_nxt) //move the snake head based on the direction 
 		      left: SnakeX[0] <= SnakeX[0] - 10;  
 		      down: SnakeY[0] <= SnakeY[0] + 10;  
@@ -165,7 +165,16 @@ begin
 		  //check for collision
 		  if((SnakeX[0] == 11'd0) || (SnakeX[0] == 11'd630) || (SnakeY[0] == 11'd0) || (SnakeY[0] == 11'd470)) collision <= 1;
 		  else collision <= 0;
-	   end 
+    end
+    else if((game_state == game_paused) || (game_state == game_over) ) begin
+        SnakeX[0] <= SnakeX[0];
+        SnakeX[1] <= SnakeX[1];
+        SnakeX[2] <= SnakeX[2];
+        SnakeX[3] <= SnakeX[3];
+        SnakeY[0] <= SnakeY[0];
+        SnakeY[1] <= SnakeY[1];
+        SnakeY[2] <= SnakeY[2];
+        SnakeY[3] <= SnakeY[3];
     end
 end 
 
@@ -177,7 +186,7 @@ if(game_state == game_not_started) begin  color <= black; end
 
 else 
 begin
- if(((hcount > 0 ) && (hcount < 640) && (vcount > 0) && (vcount < 10)) || ((hcount > 0 ) && (hcount<640) && (vcount >470) && (vcount < 480)) || ((hcount > 0 ) && (hcount<10) && (vcount >0) && (vcount < 480)) || ((hcount > 630 ) && (hcount<640) && (vcount >0) && (vcount < 480)))
+ if(((hcount >= 0 ) && (hcount < 640) && (vcount >= 0) && (vcount < 10)) || ((hcount >= 0 ) && (hcount<640) && (vcount >470) && (vcount < 480)) || ((hcount >= 0 ) && (hcount<10) && (vcount >=0) && (vcount < 480)) || ((hcount > 630 ) && (hcount<640) && (vcount >=0) && (vcount < 480)))
 		begin color <= red; end //if the scanner is at the coordinates of a boundary, make that pixel red
 	else if( ((hcount >= SnakeX[0]) && (hcount < (SnakeX[0] + 10)) && (vcount >= SnakeY[0]) && (vcount < (SnakeY[0] +10) )) || ((hcount >= SnakeX[1]) && (hcount < (SnakeX[1] + 10)) && (vcount >= SnakeY[1]) && (vcount < (SnakeY[1] +10) ))|| ((hcount >= SnakeX[2]) && (hcount < (SnakeX[2] + 10)) && (vcount >= SnakeY[2]) && (vcount < (SnakeY[2] +10) )) || ((hcount >= SnakeX[3]) && (hcount < (SnakeX[3] + 10)) && (vcount >= SnakeY[3]) && (vcount < (SnakeY[3] +10) )) )
 		begin color <= blue; end  //if the scanner is at the coordinates of any of the snake blocks, make that pixel blue

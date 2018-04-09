@@ -14,7 +14,7 @@ reg collision;
 reg [10:0] BombX [0:7], BombY[0: 7];
 
 reg sync_state, sync_state_nxt, strobe_tiny;
-
+reg start_ack, start_flag;
 
 parameter [2:0] game_not_started = 3'b000;
 parameter [2:0] game_paused = 3'b001;
@@ -81,6 +81,8 @@ nxt_game_state <= game_not_started;
 collision <= 0; 
 
 sync_state <= 0; 
+start_ack <= 0; 
+start_flag <=0; 
 
 end 
 
@@ -98,10 +100,11 @@ end
 always @(posedge clk)
 begin 
 sync_state <= sync_state_nxt; 
+game_state <= nxt_game_state; 
 end 
 
 
-always @(strobe_tiny, collision, game_state) //whenever a key is pressed or the snake hits something, update the game state and snake direction //, collision, ack_reset
+always @(strobe_tiny, collision, game_state, keycode) //whenever a key is pressed or the snake hits something, update the game state and snake direction //, collision, ack_reset
 begin
     case(game_state)
 	   game_not_started: begin
@@ -112,8 +115,8 @@ begin
 			else nxt_game_state = game_not_started;	  
 		end
 		
-		start_position: begin
-            if(new_key_strobe == 1'b1) begin
+		start_position: if(start_ack == 0) begin nxt_game_state = start_position; start_flag = 1; end 
+            /*if(new_key_strobe == 1'b1) begin
                 if(keycode == esc_key) nxt_game_state = game_not_started;
                 else if(keycode == s_key) nxt_game_state = start_position; 
                 else if(keycode == p_key) nxt_game_state = game_paused;
@@ -123,10 +126,10 @@ begin
                 else if(keycode == right_arrow_key) begin nxt_game_state = normal_game_play; if((direction == up) || (direction == down)) direction_nxt = right; else direction_nxt = direction; end
                 else if(keycode == down_arrow_key) begin nxt_game_state = normal_game_play; if((direction == right) || (direction == left)) direction_nxt = down; else direction_nxt = direction; end
                 else if(keycode == left_arrow_key) begin nxt_game_state = normal_game_play; if((direction == up) || (direction == down)) direction_nxt = left; else direction_nxt = direction; end
-                else begin nxt_game_state = normal_game_play; direction_nxt = right; end
-            end
-            else begin nxt_game_state = normal_game_play; direction_nxt = right; end
-        end
+                else begin nxt_game_state = normal_game_play; direction_nxt = right; end*/
+            
+            else begin nxt_game_state = normal_game_play; direction_nxt = right; start_flag = 0; end
+        
 		
         normal_game_play: begin
       
@@ -176,7 +179,7 @@ end
 // update snake location at 5 FPS
 always @(posedge clk_5Hz)
 begin 
-    game_state <= nxt_game_state; 
+
    direction <= direction_nxt; 
     
     if(game_state == start_position) begin
@@ -188,8 +191,10 @@ begin
          SnakeY[1] <= 20; 
          SnakeY[2] <= 20; 
          SnakeY[3] <= 20; 
+		 start_ack <= 1; 
     end
 	else if(game_state == normal_game_play) begin 
+		start_ack <= 0; 
 		  case(direction_nxt) //move the snake head based on the direction 
 		      left: SnakeX[0] <= SnakeX[0] - 10;  
 		      down: SnakeY[0] <= SnakeY[0] + 10;  
@@ -204,7 +209,7 @@ begin
 		  SnakeY[2] <= SnakeY[1];
 		  SnakeY[3] <= SnakeY[2];
 		  //check for collision
-		  if((SnakeX[0] == 11'd0) || (SnakeX[0] == 11'd630) || (SnakeY[0] == 11'd0) || (SnakeY[0] == 11'd470)) collision <= 1;
+		  if((SnakeX[0] == 11'd10) || (SnakeX[0] == 11'd620) || (SnakeY[0] == 11'd10) || (SnakeY[0] == 11'd460)) collision <= 1;
 		  else collision <= 0;
     end
     else if((game_state == game_paused) || (game_state == game_over) ) begin

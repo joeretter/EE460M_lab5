@@ -104,10 +104,12 @@ game_state <= nxt_game_state;
 end 
 
 
-always @(strobe_tiny, collision, game_state, keycode) //whenever a key is pressed or the snake hits something, update the game state and snake direction //, collision, ack_reset
+always @(strobe_tiny, collision, game_state, keycode, start_ack) //whenever a key is pressed or the snake hits something, update the game state and snake direction //, collision, ack_reset
 begin
     case(game_state)
-	   game_not_started: begin
+	   game_not_started: begin 
+           start_flag =0; 
+           direction_nxt = right; 
 	       if(new_key_strobe == 1'b1) begin
 				if(keycode == s_key) nxt_game_state = start_position;
 				else nxt_game_state = game_not_started;
@@ -212,7 +214,19 @@ begin
 		  if((SnakeX[0] == 11'd10) || (SnakeX[0] == 11'd620) || (SnakeY[0] == 11'd10) || (SnakeY[0] == 11'd460)) collision <= 1;
 		  else collision <= 0;
     end
-    else if((game_state == game_paused) || (game_state == game_over) ) begin
+    else if((game_state == game_paused) ) begin 
+        SnakeX[0] <= SnakeX[0];
+        SnakeX[1] <= SnakeX[1];
+        SnakeX[2] <= SnakeX[2];
+        SnakeX[3] <= SnakeX[3];
+        SnakeY[0] <= SnakeY[0];
+        SnakeY[1] <= SnakeY[1];
+        SnakeY[2] <= SnakeY[2];
+        SnakeY[3] <= SnakeY[3];
+    end
+	else if(game_state == game_over ) begin
+	    start_ack <= 0; 
+		direction <= right; 
         SnakeX[0] <= SnakeX[0];
         SnakeX[1] <= SnakeX[1];
         SnakeX[2] <= SnakeX[2];

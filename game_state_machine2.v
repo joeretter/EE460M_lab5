@@ -104,7 +104,7 @@ game_state <= nxt_game_state;
 end 
 
 
-always @(strobe_tiny, collision, game_state, keycode, start_ack) //whenever a key is pressed or the snake hits something, update the game state and snake direction //, collision, ack_reset
+always @(strobe_tiny, collision, game_state, keycode) //whenever a key is pressed or the snake hits something, update the game state and snake direction //, collision, ack_reset
 begin
     case(game_state)
 	   game_not_started: begin 
@@ -194,6 +194,7 @@ begin
          SnakeY[2] <= 20; 
          SnakeY[3] <= 20; 
 		 start_ack <= 1; 
+		 collision <= 0; 
     end
 	else if(game_state == normal_game_play) begin 
 		start_ack <= 0; 
@@ -226,6 +227,7 @@ begin
     end
 	else if(game_state == game_over ) begin
 	    start_ack <= 0; 
+		collision <= 0; 
 		direction <= right; 
         SnakeX[0] <= SnakeX[0];
         SnakeX[1] <= SnakeX[1];

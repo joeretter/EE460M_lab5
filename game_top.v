@@ -24,7 +24,7 @@ clk_div clk_div_inst(clk, 0, clk_25MHz);
 game_keyboard game_keyboard_inst(clk, ps2_clk, ps2_data, keycode, new_key_strobe);
 
 //game 
-game_state_machine game_state_machine_inst(clk_25MHz, clk_5Hz, keycode, new_key_strobe, hcount, vcount, color);
+game_state_machine game_state_machine_inst(clk, clk_25MHz, clk_5Hz, keycode, new_key_strobe, hcount, vcount, color);
 
 //vga output 
 vga_interface vga_interface_inst(clk_25MHz, color, vgaRed, vgaGreen, vgaBlue, Hsync,Vsync, is_vis, hcount, vcount);

@@ -156,10 +156,10 @@ begin
                 if(keycode == esc_key) nxt_game_state = game_not_started;
                 else if(keycode == s_key) begin nxt_game_state = start_position; end
                 else if(keycode == p_key) nxt_game_state = game_paused;
-                else if(keycode == r_key) nxt_game_state = normal_game_play; 
+                else if(keycode == r_key) begin nxt_game_state = normal_game_play; direction_nxt = direction; end 
                 else nxt_game_state = game_paused;
             end
-            else nxt_game_state = game_paused;
+            else begin nxt_game_state = game_paused; direction_nxt = direction; end ;
 		end
 			
 		game_over: begin
@@ -212,7 +212,14 @@ begin
 		  SnakeY[2] <= SnakeY[1];
 		  SnakeY[3] <= SnakeY[2];
 		  //check for collision
-		  if((SnakeX[0] == 11'd10) || (SnakeX[0] == 11'd620) || (SnakeY[0] == 11'd10) || (SnakeY[0] == 11'd460)) collision <= 1;
+		 // if((SnakeX[0] == 11'd10) || (SnakeX[0] == 11'd620) || (SnakeY[0] == 11'd10) || (SnakeY[0] == 11'd460)) collision <= 1;
+		  if((SnakeX[0] == 11'd10) || (SnakeX[0] == 11'd620) || (SnakeY[0] == 11'd10) || (SnakeY[0] == 11'd460) 
+		          || ((SnakeX[0] == BombX[0]) && (SnakeY[0] == BombY[0])) || ((SnakeX[0] == BombX[1]) && (SnakeY[0] == BombY[1]))
+		          || ((SnakeX[0] == BombX[2]) && (SnakeY[0] == BombY[2])) || ((SnakeX[0] == BombX[3]) && (SnakeY[0] == BombY[3]))
+		          || ((SnakeX[0] == BombX[4]) && (SnakeY[0] == BombY[4])) || ((SnakeX[0] == BombX[5]) && (SnakeY[0] == BombY[5]))
+		          || ((SnakeX[0] == BombX[6]) && (SnakeY[0] == BombY[6])) || ((SnakeX[0] == BombX[7]) && (SnakeY[0] == BombY[7])))
+		          collision <= 1;
+		  
 		  else collision <= 0;
     end
     else if((game_state == game_paused) ) begin 

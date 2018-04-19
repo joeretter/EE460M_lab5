@@ -1,16 +1,16 @@
-module vga_top(clk,color,ps2_clk, ps2_data, vgaRed, vgaGreen, vgaBlue, Hsync, Vsync, strobe_out, a, b, c, d, e, f, g, dp, an); 
+module vga_top(clk,color, vgaRed, vgaGreen, vgaBlue, Hsync, Vsync); 
 input clk; //pass in 25MHz clk "pixel clk"
 input [7:0] color; //pixel color (1-7)
 output [3:0] vgaRed, vgaGreen, vgaBlue; 
 output Hsync, Vsync; 
 wire [3:0] is_vis; 
-input ps2_clk, ps2_data;
-output strobe_out, a, b, c, d, e, f, g, dp;
-output [3:0] an;
+//input ps2_clk, ps2_data;
+//output strobe_out, a, b, c, d, e, f, g, dp;
+//output [3:0] an;
 
 wire [10:0] hcount,vcount; 
 
-keyboard_display keyboard_display_inst(clk, ps2_clk, ps2_data, strobe_out, a, b, c, d, e, f, g, dp, an); 
+//keyboard_display keyboard_display_inst(clk, ps2_clk, ps2_data, strobe_out, a, b, c, d, e, f, g, dp, an); 
 clk_div clk_div_inst(clk, 0, clk_25); 
 vga_interface vga_interface_inst(clk_25, color, vgaRed, vgaGreen, vgaBlue, Hsync,Vsync, is_vis, hcount, vcount);
 
